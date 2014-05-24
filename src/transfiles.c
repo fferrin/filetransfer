@@ -106,35 +106,46 @@ int send_file(int socket, char *filename) {
 	int 			sended = 0;
 	char 			type;
 
-	split(file.name2, filename, '/');
-	if((file.name2[strlen(file.name2) - 1]) == '/') {
+	strncpy(file.name_of_file, filename, strlen(filename));	
+	split(file.relative_path, filename, '/');
+
+	if((file.relative_path[strlen(file.relative_path) - 1]) == '/') {
 		type = (char) DIRECTORY;
 		//printf("Directory!\n");
-		printf("Sending: %s\n", file.name2);
-		write(socket, &type, sizeof(char));
+		printf("Sending: %s\n", file.name_of_file);
 
-		//strncpy(file.name2, filename, strlen(filename));
-		file.size_string = (unsigned int) strlen(file.name2) + 1;
+		file.size_string = (unsigned int) strlen(file.relative_path) + 1;
+
+		//strncpy(file.relative_path, filename, strlen(filename));
+		write(socket, &type, sizeof(char));
 		write(socket, &file.size_string, sizeof(file.size_string));
-		write(socket, &file.name2, (int)strlen(file.name2) + 1);
+		write(socket, &file.relative_path, (int)strlen(file.relative_path) + 1);
+		printf("Datos:\n");
+		printf("\t- type: %d\n", type);
+		printf("\t- size string: %u\n", file.size_string);
+		printf("\t- name: %s\n", file.relative_path);
 
 		return 0;
 	} else {
 		type = (char) FILE;
 		//printf("File!\n");
-		write(socket, &type, sizeof(char));
 
-		strncpy(file.name_of_file, filename, strlen(filename));
 		file.fd_file = open(file.name_of_file, 0); 
 		fstat(file.fd_file, &stat_file);
 		file.size_file = (unsigned int) stat_file.st_size;
-		file.size_string = (unsigned int) strlen(file.name_of_file) + 1;
-		printf("\tEnviando el archivo \"%s\"...\n", file.name_of_file);
+		file.size_string = (unsigned int) strlen(file.relative_path) + 1;
+		printf("\tEnviando el archivo '%s'...\n", file.name_of_file);
 
 		// Envio los datos del archivo
+		write(socket, &type, sizeof(char));
 		write(socket, &file.size_file, sizeof(file.size_file));
 		write(socket, &file.size_string, sizeof(file.size_string));
-		write(socket, &file.name2, (int)strlen(file.name2) + 1);
+		write(socket, &file.relative_path, (int)strlen(file.relative_path) + 1);
+		printf("Datos:\n");
+		printf("\t- type: %d\n", type);
+		printf("\t- size file: %ukB\n", file.size_file);
+		printf("\t- size string: %u\n", file.size_string);
+		printf("\t- name: %s\n", file.relative_path);
 
 		while(1) {
 			numb_bytes = sendfile(socket, file.fd_file, NULL, SIZE_BUF);
@@ -279,6 +290,7 @@ int receive_file(int socket) {
 		recv(socket, &file.name_of_file, file.size_string, 0);
 
 		mkdir(file.name_of_file, 0700);
+		chdir(file.name_of_file);
 		printf("\tCreating '%s'...\n", file.name_of_file);
 		return 0;
 	}

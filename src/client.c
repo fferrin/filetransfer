@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
 
 	int 		socket;
 	char 		client_name[BUF];
-	//char 		root[BUF];
 
 	/**************************************/
 

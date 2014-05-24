@@ -27,7 +27,7 @@
 
 typedef struct {
 	char			name_of_file[SIZE_BUF];
-	char 			name2[SIZE_BUF];
+	char 			relative_path[SIZE_BUF];
 	int 			fd_file;
 	unsigned int 	size_file;
 	unsigned int	size_string;

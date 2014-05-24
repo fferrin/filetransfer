@@ -19,7 +19,6 @@
 int main(int argc, char *argv[]) {
 	int 				sockfd;
 	client_t 			client;
-	int aux;
 
 	/**************************************/
 
@@ -41,9 +40,7 @@ int main(int argc, char *argv[]) {
 
 	mkfolder();
 
-	aux = receive_file(client.fd_client);
-	while( aux <= 0)
-		aux = receive_file(client.fd_client);
+	receive_file(client.fd_client);
 
 	// Cierra los file descriptor
 	close(client.fd_client);
