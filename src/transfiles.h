@@ -59,11 +59,13 @@ int read_from(int fd, char *buffer, int size_of_buffer);
 
 int write_to(int fd, char *buffer, int size_of_buffer);
 
-int send_file(int fd, char *filename);
+void get_relative_path(char relative[], char absolute[], int position);
+
+int send_file(int fd, char filename[], int position);
 
 int receive_file(int socket);
 
-int send_data(int socket, char *filename);
+int send_data(int socket, char filename[]);
 
 int receive_data(int socket);
 
@@ -72,5 +74,7 @@ int getdate( char date[] );
 int mkfolder(void);
 
 int split(char buffer[], char text[], char delim);
+
+int search_root(char text[]);
 
 int send_dir(int socket, char *dir_name);

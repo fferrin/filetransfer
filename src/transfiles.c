@@ -99,53 +99,54 @@ int write_to(int fd, char *buffer, int size_of_buffer) {
 	return bytes;
 }
 
-int send_file(int socket, char *filename) {
+int send_file(int socket, char filename[], int position) {
 	file_t 			file;
 	struct stat 	stat_file;
 	int 			numb_bytes;
 	int 			sended = 0;
 	char 			type;
 
-	strncpy(file.name_of_file, filename, strlen(filename));	
-	split(file.relative_path, filename, '/');
 
-	if((file.relative_path[strlen(file.relative_path) - 1]) == '/') {
+	get_relative_path(file.name_of_file, filename, position);
+
+	if((file.name_of_file[strlen(file.name_of_file) - 1]) == '/') {
 		type = (char) DIRECTORY;
 		//printf("Directory!\n");
-		printf("Sending: %s\n", file.name_of_file);
+		printf("Sending: %s\n", filename);
 
-		file.size_string = (unsigned int) strlen(file.relative_path) + 1;
+		file.size_string = (unsigned int) strlen(file.name_of_file) + 1;
 
-		//strncpy(file.relative_path, filename, strlen(filename));
+		//strncpy(file.name_of_file, filename, strlen(filename));
 		write(socket, &type, sizeof(char));
 		write(socket, &file.size_string, sizeof(file.size_string));
-		write(socket, &file.relative_path, (int)strlen(file.relative_path) + 1);
+		write(socket, &file.name_of_file, (int)strlen(file.name_of_file) + 1);
 		printf("Datos:\n");
 		printf("\t- type: %d\n", type);
 		printf("\t- size string: %u\n", file.size_string);
-		printf("\t- name: %s\n", file.relative_path);
+		printf("\t- name: %s\n", file.name_of_file);
 
 		return 0;
 	} else {
 		type = (char) FILE;
-		//printf("File!\n");
 
-		file.fd_file = open(file.name_of_file, 0); 
+		file.fd_file = open(filename, 0); 
 		fstat(file.fd_file, &stat_file);
 		file.size_file = (unsigned int) stat_file.st_size;
-		file.size_string = (unsigned int) strlen(file.relative_path) + 1;
-		printf("\tEnviando el archivo '%s'...\n", file.name_of_file);
+		file.size_string = (unsigned int) strlen(file.name_of_file) + 1;
+		printf("\tEnviando el archivo '%s'...\n", filename);
 
 		// Envio los datos del archivo
 		write(socket, &type, sizeof(char));
 		write(socket, &file.size_file, sizeof(file.size_file));
 		write(socket, &file.size_string, sizeof(file.size_string));
-		write(socket, &file.relative_path, (int)strlen(file.relative_path) + 1);
-		printf("Datos:\n");
+		write(socket, &file.name_of_file, (int)strlen(file.name_of_file) + 1);
+	
+	/*	printf("Datos:\n");
 		printf("\t- type: %d\n", type);
-		printf("\t- size file: %ukB\n", file.size_file);
+		printf("\t- size file: %.3fkB\n", file.size_file/1000.);
 		printf("\t- size string: %u\n", file.size_string);
-		printf("\t- name: %s\n", file.relative_path);
+		printf("\t- name: %s\n", file.name_of_file);
+		*/
 
 		while(1) {
 			numb_bytes = sendfile(socket, file.fd_file, NULL, SIZE_BUF);
@@ -170,7 +171,7 @@ int send_file(int socket, char *filename) {
 int send_dir(int socket, char *dir_name) {
     DIR *d = NULL;				/* Where result's opendir is saved */
 
-	send_file(socket, dir_name);
+	send_file(socket, dir_name, 1);
 
     /* Check it was opened. -1 on error */
     if(!(d = opendir (dir_name))) {
@@ -193,7 +194,7 @@ int send_dir(int socket, char *dir_name) {
 	    			if(strcmp(d_struct->d_name, ".") && strcmp(d_struct->d_name, "..")) {
         				/* Print the name of the file and directory. */
 		    			sprintf(name, "%s%s/", dir_name, d_struct->d_name);
-		    			send_file(socket, name);
+		    			send_file(socket, name, 1);
 			    		printf("Sending: %s\n", name);
                			/* Recursively call "list_dir" with the new path. */
 			    		send_dir(socket, name);   
@@ -206,7 +207,7 @@ int send_dir(int socket, char *dir_name) {
 			    } else {
 			    	/* Imprimo el nombre del mismo */
 			    	sprintf(name, "%s%s", dir_name, d_struct->d_name);
-			    	send_file(socket, name);
+			    	send_file(socket, name, 1);
 			    	printf("Sending: %s\n", name);
 			    }
             /* There are no more entries in this directory, so break out of the while loop. */
@@ -224,16 +225,22 @@ int send_dir(int socket, char *dir_name) {
 	return 0;
 }
 
-int send_data(int socket, char *filename) {
-	char 	root[BUF];
+int send_data(int socket, char filename[]) {
+	struct stat file_stat;
 
-	split(root, filename, '/');
-	if((root[strlen(root) - 1]) != '/') {
-		send_file(socket, filename);
-	} else {
-		send_dir(socket, filename);
-		//printf("'send_dir' under construction\n");
+	if(stat(filename, &file_stat) < 0)
+		return -1;
+
+	if(file_stat.st_mode & S_IFDIR)
+		send_dir(socket, filename);		
+	else if(file_stat.st_mode & S_IFREG || file_stat.st_mode & S_IFLNK)
+		send_file(socket, filename, search_root(filename));
+	else {
+		printf("It can't be sended that kind of file\n");
+		printf("Quitting...\n");
+		return -1;
 	}
+
 	return 0;
 }
 
@@ -276,8 +283,6 @@ int receive_file(int socket) {
 		
 		close(file.fd_file);
 
-		printf("rec = %d\n", recibed);
-		printf("sz = %d\n", file.size_file);
 		if(recibed != file.size_file) {
 			error("No se pudo enviar el archivo");
 			return -1;
@@ -371,4 +376,24 @@ int split(char buffer[], char text[], char delim) {
 		printf("Buffer overflow\n");
 		return -1;
 	}
+}
+
+int search_root(char text[]) {
+	int 	i;
+	int 	size = strlen(text);
+
+	for(i = (size - 2) ; 0 < i ; i--) {
+		if(text[i] == '/')
+			return i;
+	}
+
+	return -1;
+}
+
+void get_relative_path(char relative[], char absolute[], int position) {
+	int i;
+
+	relative[0] = '.';
+	for( i = position ; i < strlen(absolute) ; i++)
+		relative[(i - position) + 1] = absolute[i];
 }
