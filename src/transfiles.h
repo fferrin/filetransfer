@@ -20,7 +20,7 @@
 #define PORT 			666
 #define MAX_SIZE_FILE 	1024000
 #define SIZE_BUF 		10240
-#define BUF 			128
+#define BUF 			128000
 #define FILE 			0
 #define DIRECTORY		1
 
@@ -73,8 +73,6 @@ int getdate( char date[] );
 
 int mkfolder(void);
 
-int split(char buffer[], char text[], char delim);
-
 int search_root(char text[]);
 
-int send_dir(int socket, char *dir_name);
+int send_dir(int socket, char *dir_name, int position);

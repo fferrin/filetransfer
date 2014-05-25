@@ -39,8 +39,17 @@ int main(int argc, char *argv[]) {
 	printf("- %s se acaba de conectar:\n", client.nickname);
 
 	mkfolder();
-
+/*
 	receive_file(client.fd_client);
+	receive_file(client.fd_client);
+	receive_file(client.fd_client);
+	receive_file(client.fd_client);
+	receive_file(client.fd_client);
+	receive_file(client.fd_client);
+	*/
+
+	//printf("return: %d\n", receive_file(client.fd_client));
+	receive_data(client.fd_client);
 
 	// Cierra los file descriptor
 	close(client.fd_client);
