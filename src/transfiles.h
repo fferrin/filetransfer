@@ -17,17 +17,17 @@
 #include <limits.h>		/* limits.h defines "PATH_MAX". */
 
 #define HOSTNAME 		"localhost"
-#define PORT 			666
 #define MAX_SIZE_FILE 	1024000
 #define SIZE_BUF 		10240
 #define BUF 			128000
+#define STDOUT 			1
 #define FILE 			0
 #define DIRECTORY		1
+#define END				2
 
 
 typedef struct {
 	char			name_of_file[SIZE_BUF];
-	char 			relative_path[SIZE_BUF];
 	int 			fd_file;
 	unsigned int 	size_file;
 	unsigned int	size_string;
@@ -48,6 +48,12 @@ typedef struct {
 	struct hostent 		*server;	
 } conection_t;
 
+/*
+int 	FILES_SENDED = 0;
+int 	DIR_SENDED = 0;
+int 	FILES_RECEIVED = 0;
+int 	DIR_RECEIVED = 0;
+*/
 
 void error(const char *msg);
 
@@ -55,24 +61,24 @@ int clientcon(char *host, int port);
 
 int servercon(int port);
 
-int read_from(int fd, char *buffer, int size_of_buffer);
+int read_from(int fd, void *buffer, int size_of_buffer);
 
-int write_to(int fd, char *buffer, int size_of_buffer);
+int write_to(int fd, void *buffer, int size_of_buffer);
 
 void get_relative_path(char relative[], char absolute[], int position);
 
-int send_file(int fd, char filename[], int position);
+int send_file(int fd, char filename[], int position, int fdout);
 
-int receive_file(int socket);
+int receive_file(int socket, int fdout);
 
-int send_data(int socket, char filename[]);
+int send_data(int socket, char filename[], int fdout);
 
-int receive_data(int socket);
+int receive_data(int socket, int fdout);
 
 int getdate( char date[] );
 
-int mkfolder(void);
+int mkfolder(int fdout, char clietn[]);
 
 int search_root(char text[]);
 
-int send_dir(int socket, char *dir_name, int position);
+int send_dir(int socket, char *dir_name, int position, int fdout);
