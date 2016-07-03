@@ -38,14 +38,14 @@ int clientcon(char *host, int port) {
 
     bzero((char *) &conection.serv_addr, sizeof(conection.serv_addr));
     conection.serv_addr.sin_family = AF_INET;
-    bcopy((char *)conection.server->h_addr,
-          (char *)&conection.serv_addr.sin_addr.s_addr,
+    bcopy((char *)conection.server->h_addr, \
+          (char *)&conection.serv_addr.sin_addr.s_addr, \
           conection.server->h_length);
     conection.serv_addr.sin_port = port;
 
     /* try to connect to server */
-    if (connect(conection.sockfd,
-                (struct sockaddr *) &conection.serv_addr,
+    if (connect(conection.sockfd, \
+                (struct sockaddr *) &conection.serv_addr, \
                 sizeof(conection.serv_addr)) < 0)
         error("ERROR connecting");
 
@@ -146,7 +146,7 @@ int send_file(int socket, char filename[], int position, int fdout) {
         dprintf(fdout, "OK\n");
         return 0;
     /* if is a file */
-    } else if (stat_filename.st_mode & S_IFDIR ||
+    } else if (stat_filename.st_mode & S_IFDIR || \
                stat_filename.st_mode & S_IFLNK) {
         type = (char) FILE;
 
@@ -163,7 +163,7 @@ int send_file(int socket, char filename[], int position, int fdout) {
         write_to(socket, &file.size_string, sizeof(file.size_string));
         write_to(socket, &file.name_of_file, (int)strlen(file.name_of_file) + 1);
 
-        while (true) {
+        while (TRUE) {
             numb_bytes = sendfile(socket, file.fd_file, NULL, SIZE_BUF);
             if (numb_bytes < 0) {
                 error("ERROR");
@@ -202,11 +202,11 @@ int send_dir(int socket, char *dir_name, int position, int fdout) {
 
     /* Check it was opened. -1 on error */
     if (!(d = opendir (dir_name))) {
-        fprintf (stderr, "Cannot open directory '%s': %s\n",
+        fprintf (stderr, "Cannot open directory '%s': %s\n", \
                  dir_name, strerror (errno));
         return -1;
     } else {
-        while (true) {
+        while (TRUE) {
             struct dirent *d_struct;
             char name[PATH_MAX];
 
@@ -214,8 +214,8 @@ int send_dir(int socket, char *dir_name, int position, int fdout) {
             if ((d_struct = readdir(d))) {
                 sprintf(name, "%s%s", dir_name, d_struct->d_name);
                 if (d_struct->d_type == DT_DIR) {
-                    if (strcmp(d_struct->d_name, ".") &&
-                       strcmp(d_struct->d_name, "..")) {
+                    if (strcmp(d_struct->d_name, ".") && \
+                        strcmp(d_struct->d_name, "..")) {
                         sprintf(name, "%s%s/", dir_name, d_struct->d_name);
                         send_dir(socket, name, position, fdout);
                     } else
@@ -228,7 +228,8 @@ int send_dir(int socket, char *dir_name, int position, int fdout) {
         }
 
         if (closedir(d)) {
-            fprintf (stderr, "Could not close '%s': %s\n", dir_name, strerror (errno));
+            fprintf (stderr, "Could not close '%s': %s\n", \
+                     dir_name, strerror (errno));
             exit (EXIT_FAILURE);
         }
     }
@@ -301,7 +302,7 @@ int receive_file(int socket, int fdout) {
         if ((file.fd_file = creat(file.name_of_file, S_IRWXU)) < 0)
             error("ERROR");
 
-        while (true) {
+        while (TRUE) {
             bzero(buffer, SIZE_BUF);
             if (SIZE_BUF < offset)
                 read_until = SIZE_BUF;
@@ -328,7 +329,7 @@ int receive_file(int socket, int fdout) {
             error("No se pudo recibir el archivo.");
             return -1;
         } else {
-            dprintf(fdout, " %.3f/%.3f kB [%.3f%%]\n", recibed/1000.,
+            dprintf(fdout, " %.3f/%.3f kB [%.3f%%]\n", recibed/1000., \
                     file.size_file/1000., (recibed*100.)/file.size_file);
             FILES_R++;
             return recibed;
@@ -356,19 +357,19 @@ int receive_data(int socket, int fdout) {
     int aux;
     int dir, files;
 
-    while (true) {
+    while (TRUE) {
         aux = receive_file(socket, fdout);
         if (aux == END) {
             read_from(socket, &dir, sizeof(int));
             read_from(socket, &files, sizeof(int));
             if ((DIR_R == dir) && (FILES_R == files)) {
                 dprintf(fdout, "\nTransferencia realizada con exito.\n");
-                dprintf(fdout, "\nSe han transferido: - %d de %d carpetas\n",
+                dprintf(fdout, "\nSe han transferido: - %d de %d carpetas\n", \
                         DIR_R, dir);
-                dprintf(fdout, "                    - %d de %d archivos\n",
+                dprintf(fdout, "                    - %d de %d archivos\n", \
                         FILES_R, files);
             } else {
-                dprintf(fdout,
+                dprintf(fdout, \
                         "\nAlgunos archivos no se pudieron transferir.\n");
                 dprintf(fdout, "\nSe han transferido: - %d carpetas\n", DIR_R);
                 dprintf(fdout, "                    - %d archivos\n", FILES_R);
@@ -393,9 +394,10 @@ int getdate(char date[]) {
 
     time(&rawtime);
     timeinfo = localtime(&rawtime);
-    if (sprintf(date, "%04d-%02d-%02d %02d:%02d:%02d", timeinfo->tm_year + 1900,
-                timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour,
-                timeinfo->tm_min, timeinfo->tm_sec) != 20)
+    if (sprintf(date, "%04d-%02d-%02d %02d:%02d:%02d", \
+                timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, \
+                timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min, \
+                timeinfo->tm_sec) != 20)
         return -1;
 
     return 0;

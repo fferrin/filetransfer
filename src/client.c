@@ -37,23 +37,23 @@ int main(int argc, char *argv[]) {
                 port = atoi(optarg);
                 break;
             case 'h': /* helper */
-                printf("\nUsage: client [-f logfile] [-n nickname] [-p port]
+                printf("\nUsage: client [-f logfile] [-n nickname] [-p port] \
                                  host\n");
-                printf("Cliente para la recepcion de archivos desde un server
+                printf("Cliente para la recepcion de archivos desde un server \
                         escuchando en port.\n");
                 printf("\tCommand Summary:\n");
-                printf("\t\t -f logfile\t Indica el archivo donde se guarda un
+                printf("\t\t -f logfile\t Indica el archivo donde se guarda un \
                         log de la transferencia. Por defecto,\n");
-                printf("\t\t\t\t el path del archivo es la carpeta del
+                printf("\t\t\t\t el path del archivo es la carpeta del \
                         usuario.\n");
                 printf("\t\t -h\t\t This help text.\n");
-                printf("\t\t -n nickname\t Indica el nickname del cliente. Por
+                printf("\t\t -n nickname\t Indica el nickname del cliente. Por \
                         defecto es 'anonymous'\n");
-                printf("\t\t -p port\t Especifica el puerto de conexion. Por
+                printf("\t\t -p port\t Especifica el puerto de conexion. Por \
                         defecto es %d.\n\n", port);
                 return 0;
             default: /* default options */
-                fprintf(stderr, "Usage: %s [-f logfile] [-n nickname]
+                fprintf(stderr, "Usage: %s [-f logfile] [-n nickname] \
                                  [-p port_number] host\n", argv[0]);
                 exit(EXIT_FAILURE);
         }

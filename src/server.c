@@ -38,12 +38,12 @@ int main(int argc, char *argv[]) {
                 printf("\nUsage: server [-f logfile] [-p port] file/dir\n");
                 printf("Server para el envio de archivos a un cliente.\n");
                 printf("\tCommand Summary:\n");
-                printf("\t\t -f logfile\t Indica el archivo donde se guarda un
+                printf("\t\t -f logfile\t Indica el archivo donde se guarda un \
                         log de la transferencia. Por defecto,\n");
-                printf("\t\t\t\t el path del archivo es la carpeta del
+                printf("\t\t\t\t el path del archivo es la carpeta del \
                         usuario.\n");
                 printf("\t\t -h\t\t This help text.\n");
-                printf("\t\t -p port\t Especifica el puerto de conexion. Por
+                printf("\t\t -p port\t Especifica el puerto de conexion. Por \
                         defecto es %d.\n\n", port);
                 return 0;
             default: /* default options */
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
     /* accept client connection */
     client.clilen = sizeof(client.cli_addr);
-    client.fd_client = accept(sockfd, (struct sockaddr *) &client.cli_addr,
+    client.fd_client = accept(sockfd, (struct sockaddr *) &client.cli_addr, \
                               &client.clilen);
     read_from(client.fd_client, client.nickname, SIZE_BUF);
     printf("Conexion aceptada con %s\n", client.nickname);

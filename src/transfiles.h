@@ -17,6 +17,18 @@
 #include <unistd.h>
 
 
+#define HOSTNAME "localhost"
+#define MAX_SIZE_FILE 1024000
+#define SIZE_BUF 10240
+#define BUF 128000
+#define TRUE 1
+#define FALSE 0
+#define STDOUT 1
+#define FILE 0
+#define DIRECTORY 1
+#define END 2
+
+
 typedef struct {
     char name_of_file[SIZE_BUF];
     int fd_file;
@@ -39,15 +51,6 @@ typedef struct {
     struct hostent *server;
 } conection_t;
 
-
-#define HOSTNAME "localhost"
-#define MAX_SIZE_FILE 1024000
-#define SIZE_BUF 10240
-#define BUF 128000
-#define STDOUT 1
-#define FILE 0
-#define DIRECTORY 1
-#define END 2
 /*
 int     FILES_SENDED = 0;
 int     DIR_SENDED = 0;
